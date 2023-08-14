@@ -26,7 +26,7 @@ Usage:
         --delete-dynatrace-operator
             Uninstall Dynatrace operator from cluster
         --delete-application
-            Uninstall application 
+            Uninstall application
 " >&2
     exit 1
 }
@@ -40,9 +40,14 @@ provision_cluster() {
 }
 
 deploy_dynatrace_operator() {
+    dynakube_temp_file=".dynakube.tmp.yaml"
     if ! kubectl get namespace dynatrace &> /dev/null; then
         kubectl create namespace dynatrace
     fi
+    if [[ -e "${dynakube_temp_file}" ]]; then
+        rm -f "${dynakube_temp_file}"
+    fi
+
     kubectl apply -f https://github.com/Dynatrace/dynatrace-operator/releases/download/v0.12.1/kubernetes.yaml
     kubectl -n dynatrace wait pod --for=condition=ready --selector=app.kubernetes.io/name=dynatrace-operator,app.kubernetes.io/component=webhook --timeout=300s
     cp dynakube.yaml .dynakube.tmp.yaml
@@ -63,6 +68,11 @@ deploy_app() {
 }
 
 delete_dynatrace_operator() {
+    dynakube_temp_file=".dynakube.tmp.yaml"
+    if [[ -e "${dynakube_temp_file}" ]]; then
+        rm -f "${dynakube_temp_file}"
+    fi
+
     cp dynakube.yaml .dynakube.tmp.yaml
     sed -e "s,%%API_TOKEN%%,${api_token},g" -e "s,%%DATA_INGEST_TOKEN%%,${data_ingest_token},g" -e "s,%%API_URL%%,${api_url},g" -i .dynakube.tmp.yaml
     kubectl delete -f .dynakube.tmp.yaml
