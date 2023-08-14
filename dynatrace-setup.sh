@@ -26,7 +26,7 @@ Usage:
         --delete-dynatrace-operator
             Uninstall Dynatrace operator from cluster
         --delete-application
-            Uninstall appliocation 
+            Uninstall application 
 " >&2
     exit 1
 }
@@ -140,7 +140,7 @@ main() {
 
     if ${provision_cluster}; then
         if [[ -z "${project_id}" ]]; then
-           echo "When provisioning a new cluster GKE project id  must be provided with '--gke-project-id'"
+           echo "When provisioning a new cluster GKE project id must be provided with '--gke-project-id'"
            usage
         fi
         provision_cluster
